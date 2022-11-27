@@ -1,0 +1,4 @@
+(executable
+ (public_name sympatch)
+ (name main)
+ (libraries sympatch))
