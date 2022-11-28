@@ -1,2 +1,5 @@
 (library
- (name sympatch))
+ (name sympatch)
+ (preprocess
+  (pps ppx_deriving.show ppx_deriving.ord))
+ (libraries unix patch))
