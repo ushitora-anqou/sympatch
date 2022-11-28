@@ -49,7 +49,6 @@ let of_path (path : string) : t =
                match s.st_kind with
                | S_REG ->
                    (* Regular file *)
-                   (* FIXME: check sym link *)
                    Link p
                | S_DIR -> (* Directory *) aux p
                | _ -> failwithf "Unimplemented: %s" p
