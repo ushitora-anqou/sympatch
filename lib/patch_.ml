@@ -66,8 +66,10 @@ let patch (p : t) (n : int) (fs : Fs.t) : Fs.t =
   List.fold_left (fun fs d -> patch_one d n fs) fs p.diffs
   |> Fs.remove_empty_files_and_dirs |> Fs.replace_unchanged_dir_with_link
 
+let of_string (s : string) : t = { diffs = Patch.to_diffs s }
+
 let read_patch_file (fpath : string) : t =
   let ic = open_in_bin fpath in
   let raw = In_channel.input_all ic in
   close_in ic;
-  { diffs = Patch.to_diffs raw }
+  of_string raw

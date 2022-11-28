@@ -1,12 +1,16 @@
 open Sympatch
 
 let () =
-  if Array.length Sys.argv < 3 then failwith "Usage: sympatch FILE SRC-DIR"
+  let usage_msg = "sympatch -pNUM DIR < PATCH-FILE" in
+  if Array.length Sys.argv < 3 then failwith usage_msg
   else
-    let fpath = Sys.argv.(1) in
+    let p_num =
+      let s = Sys.argv.(1) in
+      String.sub s 2 (String.length s - 2) |> int_of_string
+    in
     let src = Sys.argv.(2) in
-    let patch = Patch.read_patch_file fpath in
+    let patch = Patch.of_string (In_channel.input_all stdin) in
     let fs = Fs.of_path src in
     Fs.show fs |> print_endline;
-    let fs = Patch.patch patch 1 fs in
+    let fs = Patch.patch patch p_num fs in
     Fs.show fs |> print_endline
