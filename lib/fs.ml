@@ -127,3 +127,25 @@ let replace_unchanged_dir_with_link fs =
     | Dir (Some link, _) -> Link link
   in
   aux fs
+
+let symlink_rel src dst =
+  (* FIXME: Use Unix.symlink for better portability? *)
+  exec_cmd "ln" [ "-sr"; src; dst ] |> ignore
+
+let mkdir_p path =
+  (* FIXME: Use FilePath? *)
+  exec_cmd "mkdir" [ "-p"; path ] |> ignore
+
+let instantiate (dst : string) (fs : t) : unit =
+  let rec aux dst = function
+    | Link src -> symlink_rel src dst
+    | File content ->
+        let oc = open_out_bin dst in
+        output_string oc content;
+        close_out oc
+    | Dir (_, entries) ->
+        mkdir_p dst;
+        entries
+        |> List.iter (fun (name, tree) -> aux (Filename.concat dst name) tree)
+  in
+  aux dst fs

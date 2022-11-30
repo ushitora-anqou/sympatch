@@ -1,3 +1,11 @@
+let debug_printf f =
+  Printf.ksprintf
+    (fun s ->
+      if 1 = 1 then (
+        Printf.fprintf stderr "%s\n" s;
+        flush stderr))
+    f
+
 let failwithf f = Printf.ksprintf (fun s -> failwith s) f
 
 let enumerate l =
@@ -38,6 +46,54 @@ exception
     err : string;
     out : string;
   }
+
+let exec_cmd ?(timeout = None) ?(may_fail = false) ?(wd = "") prog args =
+  let f () =
+    debug_printf "exec_cmd: %s %s" prog (args |> String.concat " ");
+    (* Execute command *)
+    let params = prog :: args in
+    let ic_out, oc_in, ic_err =
+      Unix.open_process_args_full (List.hd params) (Array.of_list params)
+        (Unix.environment ())
+    in
+    (* Set timeout if specified *)
+    let is_timeout = ref false in
+    let prev_handler =
+      timeout
+      |> Option.map (fun seconds ->
+             let open Sys in
+             let pid = Unix.process_full_pid (ic_out, oc_in, ic_err) in
+             let handler _ =
+               is_timeout := true;
+               Unix.kill pid sigterm
+             in
+             let h = signal sigalrm (Signal_handle handler) in
+             Unix.alarm seconds |> ignore;
+             h)
+    in
+    (fun () ->
+      (* Wait for the command to finish (or abort) *)
+      let out = In_channel.input_all ic_out in
+      let err = In_channel.input_all ic_err in
+      let res = Unix.close_process_full (ic_out, oc_in, ic_err) in
+      match res with
+      | WEXITED 0 -> (0, out)
+      | WEXITED c when may_fail -> (c, out)
+      | unix_status ->
+          debug_printf "exec_cmd failed";
+          let status = if !is_timeout then PSTimeout else PSUnix unix_status in
+          let exc = ExecCmdFailure { status; wd; params; err; out } in
+          debug_printf "exec_cmd failed: %s" (Printexc.to_string exc);
+          raise exc)
+    |> Fun.protect ~finally:(fun () ->
+           let open Sys in
+           prev_handler |> Option.iter (set_signal sigalrm))
+  in
+  if wd = "" then f () else changed_wd wd f
+
+let exec_cmd_opt ?(wd = "") prog args =
+  try exec_cmd ~wd prog args |> snd |> Option.some
+  with ExecCmdFailure _ -> None
 
 type datetime = { y : int; mo : int; d : int; h : int; mi : int; s : int }
 [@@deriving show]
