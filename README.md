@@ -6,7 +6,7 @@ Copy a directory via diff, using symlink for duplicate files.
 
 ```
 $ diff -ruN src0/dir src1/dir > patchfile
-$ sympatch -p1 src0/dir dst/dir < patchfile
+$ sympatch -p 1 [-opt] src0/dir dst/dir < patchfile
 ```
 
 ## Motivation
@@ -59,7 +59,7 @@ diff -ruN dir/c dir1/c
 +baz
 
 # Apply patch to make dir1_copied
-$ sympatch -p1 dir dir1_copied < patchfile
+$ sympatch -p 1 dir dir1_copied < patchfile
 
 # It seems dir1_copied has the same content as dir1
 $ diff -r dir1 dir1_copied
