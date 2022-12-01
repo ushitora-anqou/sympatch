@@ -3,11 +3,11 @@ name: "sympatch"
 version: "0.0.1"
 authors: "Ushitora Anqou"
 maintainer: "ushitora@anqou.net"
-synopsis: "Copy a directory via diff, using symlink for duplicate files."
+synopsis: "Copy a directory via diff, using symlink for duplicate files"
 license: "MIT"
 homepage: "https://github.com/ushitora-anqou/sympatch"
 bug-reports: "https://github.com/ushitora-anqou/sympatch/issues"
-dev-repo: "https://github.com/ushitora-anqou/sympatch"
+dev-repo: "git+https://github.com/ushitora-anqou/sympatch"
 build: [
   ["dune" "build" "-p" name "-j" jobs]
 ]
