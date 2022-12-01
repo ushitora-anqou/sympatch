@@ -1,0 +1,20 @@
+opam-version: "2.0"
+name: "sympatch"
+version: "0.0.1"
+authors: "Ushitora Anqou"
+maintainer: "ushitora@anqou.net"
+synopsis: "Copy a directory via diff, using symlink for duplicate files."
+license: "MIT"
+homepage: "https://github.com/ushitora-anqou/sympatch"
+bug-reports: "https://github.com/ushitora-anqou/sympatch/issues"
+dev-repo: "https://github.com/ushitora-anqou/sympatch"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "dune"          { >= "3.2.0" }
+  "ocaml"         { >= "4.12.1" & < "5.0" }
+  "patch"         { >= "1.0.1" }
+  "ppx_deriving"  { >= "5.2.1" }
+]
+available: arch != "arm32" & arch != "x86_32" & arch != "s390x"
