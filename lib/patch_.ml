@@ -62,9 +62,12 @@ let patch_one (d : Patch.t) (n : int) (fs : Fs.t) =
       *)
       assert false
 
-let patch (p : t) (n : int) (fs : Fs.t) : Fs.t =
-  List.fold_left (fun fs d -> patch_one d n fs) fs p.diffs
-  |> Fs.remove_empty_files_and_dirs |> Fs.replace_unchanged_dir_with_link
+let patch ~opt (p : t) (n : int) (fs : Fs.t) : Fs.t =
+  let fs =
+    List.fold_left (fun fs d -> patch_one d n fs) fs p.diffs
+    |> Fs.remove_empty_files_and_dirs
+  in
+  if opt then Fs.replace_unchanged_dir_with_link fs else fs
 
 let of_string (s : string) : t = { diffs = Patch.to_diffs s }
 
