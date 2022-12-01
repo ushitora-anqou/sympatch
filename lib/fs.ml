@@ -136,8 +136,11 @@ let mkdir_p path =
   (* FIXME: Use FilePath? *)
   exec_cmd "mkdir" [ "-p"; path ] |> ignore
 
-let instantiate (dst : string) (fs : t) : unit =
+let cp src dst = exec_cmd "cp" [ src; dst ] |> ignore
+
+let instantiate ~files_to_copy (dst : string) (fs : t) : unit =
   let rec aux dst = function
+    | Link src when List.mem src files_to_copy -> cp src dst
     | Link src -> symlink_rel src dst
     | File content ->
         let oc = open_out_bin dst in
